@@ -1,0 +1,123 @@
+<div class="container">
+    <div class="title">Task-Trecker</div>
+    <div class="tasks">
+        <div class="setting">
+            <button class="task-btn" [disabled]="task" (click)="visibleForm()"> + Добавить задачу</button>
+
+            <div class="wrapper">
+                <button class="filter-btn" [disabled]="task"> <img class="filter-img" src="../../assets/img/filter.svg" alt="">Filter</button>
+                <button class="sort-btn" [disabled]="task"> <img class="sort-img" src="../../assets/img/Sortirovka-strelkisvg.svg" alt="">Сортировка</button>
+            </div>
+        </div>
+        <div class="task-wrapper-option">
+            <div class="columns-task">
+                <div class="columns-task-title">
+                    Название заголовка
+                </div>
+                <div class="columns-task-name"> 
+                    Название задачи
+                </div>
+                <div class="columns-task-deadline">
+                    Сроки выполнения
+                </div>
+                <div class="columns-task-priority">
+                    Приоритет
+                </div>
+                <div class="columns-task-status">
+                    Статус
+                </div>
+                <div class="columns-task-performers">
+                    Исполнители
+                </div>
+            </div>
+            <form class="form"  *ngIf="task">
+                <div class="form-task">
+                    <div  class="form-wrapper">
+                        <label for="">Заголовок:</label>
+                        <input name="taskTitle" type="text" class="new-task-title" placeholder="Напишите заголовок" title="Добавить заголовок задачи" #taskTitle>
+                    </div>
+                    <div  class="form-wrapper">
+                        <label for="">Название задачи:</label>
+                        <input name="taskName" type="text" class="new-task-name" placeholder="Напишите название задачи" title="Добавить название задачи"  required #taskName>
+                    </div>
+                    <div  class="form-wrapper">
+                        <label for="">Сроки выполнения:</label>
+                        <input type="date" class="new-task-deadline" title="Добавить сроки выполнения" [value]="this.currentDate" [min]="this.currentDate" #taskDeadline>
+                    </div>
+                    <div  class="form-wrapper">
+                        <label for="">Приоритет:</label>
+                        <select class="new-task-priority" title="Добавить приоритет" #taskPriority>
+                            <option *ngFor="let keyValue of this.taskService.getObjectKeys(this.taskService.prioritets)">
+                                <div>{{ keyValue }}</div>
+                            </option>
+                        </select>
+                    </div>
+                    <div  class="form-wrapper">
+                        <label for="">Исполнители:</label>
+                        <input class="new-task-performers" type="text" placeholder="Выбрать исполнителей" (click)="this.choosePerformer = !this.choosePerformer; selectedPerformers=[]" [value]="selectedPerformers.join()" readonly #taskPerformer>
+                        <div *ngIf="choosePerformer">
+                            <div *ngFor="let performer of this.taskService.getObjectKeys(this.taskService.performers)" style="display: flex;">
+                                <input type="checkbox" [value]="performer" (change)="togglePerformer(performer)">
+                                {{ performer }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-btn">
+                    <input class="addTask-btn" (click)="addTask()" type="submit" #submitInput>
+                    <button class="delTask-btn" (click)="this.taskService.closeForm()">Отменить</button>
+                </div>
+            </form>
+            <div *ngIf="this.taskService.taskArray.length == 0" style="font-size: 22px; color: #999; font-weight: 600;">Здесь пока что пусто, добавьте задачи!</div>
+
+            <div *ngFor="let task of this.taskService.taskArray" [id]="task.id" style="cursor: pointer;">
+                <div style="display: flex; margin-bottom: 5px;">
+                    <div class="columns-task-title">
+                        {{ task.title}}
+                    </div>
+                    <div class="columns-task-name"> 
+                        {{ task.name}}
+                    </div>
+                    <div class="columns-task-deadline">
+                        {{ task.deadline.toISOString().substring(0, 10)}}
+                    </div>
+                    <div class="columns-task-priority">
+                        {{ task.priority}}
+                    </div>
+                    <div class="columns-task-status">
+                        <select class="ready-task-status" (change)="this.taskService.changeTasks(task,this.readyTaskStatus)"  #readyTaskStatus> 
+                            <option >Выполняется</option>
+                            <option>Выполнена</option>
+                        </select>
+                    </div>
+                    <div class="columns-task-performers" style="gap: 5px;">
+                        <div [innerText]="task.performers.join()"></div>
+                        <div (click)="showPerfomer($event,task)" class="arrow-down">
+                            <img src="../../assets/img/arrow-down.svg" >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="select-performer" *ngIf="this.selectPerformers" #selectPerfomer>
+    <div *ngFor="let performer of this.taskService.getObjectKeys(this.taskService.performers)" style="display: flex; gap: 10px; justify-content: space-between; align-items: center;">
+        <div>{{performer}}</div>
+        <div>
+            <div  class="select-performer-option_1" *ngIf="!searchPerfomer(performer)" (click)="taskService.addPerformer(this.actualTaskId,performer)"><img src="../../assets/img/plus.svg" style="width: 20px; height: 20px;"></div>
+            <div  class="select-performer-option_2" *ngIf="searchPerfomer(performer)" (click)="taskService.deletePerfomer(this.actualTaskId,performer)"><img src="../../assets/img/trash_can.svg" style="width: 20px; height: 20px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- *ngIf="!searchPerfomer(this.selectPerfomer.id,performer)" -->
+
+<!-- [routerLink]="['/task', task.name]" -->
+
+<!-- *ngIf="!searchPerfomer(task,performer)"
+(click)="taskService.addPerformer(task,performer)"
+
+*ngIf="searchPerfomer(task,performer)"
+(click)="taskService.deletePerfomer(task,performer)" -->
